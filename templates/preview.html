@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Preview - Benford's Law</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #e8f4f8;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+            margin-bottom: 20px;
+        }
+
+        .info-box strong {
+            color: #2196F3;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e1e4e8;
+        }
+
+        .column-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .column-tag {
+            padding: 8px 16px;
+            background: #f0f1ff;
+            border: 1px solid #667eea;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .column-tag.numeric {
+            background: #e8f5e9;
+            border-color: #4caf50;
+            color: #4caf50;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .preview-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .preview-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+
+        .preview-table tr:hover {
+            background: #f8f9ff;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        select {
+            padding: 12px 16px;
+            border: 2px solid #e1e4e8;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Preview</h1>
+        <p class="subtitle">Review your data and select a numeric column to analyze</p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Rows</div>
+                <div class="stat-value">{{ row_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Columns</div>
+                <div class="stat-value">{{ all_cols|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Numeric Columns</div>
+                <div class="stat-value">{{ numeric_cols|length }}</div>
+            </div>
+        </div>
+
+        {% if numeric_cols %}
+        <div class="section">
+            <h2>Available Numeric Columns</h2>
+            <div class="column-list">
+                {% for col in numeric_cols %}
+                <span class="column-tag numeric">{{ col }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="info-box" style="background: #fee; border-left-color: #c33;">
+            <strong>Warning:</strong> No numeric columns found in your data. Benford's Law analysis requires numeric data.
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <h2>All Columns</h2>
+            <div class="column-list">
+                {% for col in all_cols %}
+                    {% if col in numeric_cols %}
+                    <span class="column-tag numeric">{{ col }}</span>
+                    {% else %}
+                    <span class="column-tag">{{ col }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Data Preview (First 10 Rows)</h2>
+            <div class="table-wrapper">
+                {{ preview_html|safe }}
+            </div>
+        </div>
+
+        {% if numeric_cols %}
+        <form method="post" action="/analyze">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="filename" value="{{ filename }}">
+
+            <div class="form-group">
+                <label for="column">Select Column to Analyze:</label>
+                <select name="column" id="column" required>
+                    <option value="">-- Choose a numeric column --</option>
+                    {% for col in numeric_cols %}
+                    <option value="{{ col }}">{{ col }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Run Analysis</button>
+                <a href="/" class="btn btn-secondary">Upload Different File</a>
+            </div>
+        </form>
+        {% else %}
+        <div class="button-group">
+            <a href="/" class="btn btn-primary">Upload Different File</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

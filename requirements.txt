@@ -1,3 +1,13 @@
-benfordslaw
-matplotlib
-pandas
+# Core dependencies
+benfordslaw==2.0.1
+matplotlib==3.10.3
+pandas==2.2.3
+Flask==3.1.2
+python-dotenv==1.2.1
+
+# Flask dependencies (auto-installed)
+Werkzeug==3.1.3
+Jinja2==3.1.6
+
+# Testing
+pytest==8.3.4
