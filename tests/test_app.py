@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import pytest
 
 import app as flask_app
+from benford import external_data
 from benford.analyzer import BenfordAnalyzer
 
 
@@ -162,3 +163,119 @@ def test_large_file_rejected(temp_app, monkeypatch):
     # Flask returns 413 and our handler redirects with flash
     assert resp.status_code == 200
     assert b"File is too large" in resp.data
+
+
+def test_kaggle_credential_encrypt_decrypt():
+    secret = "supersecret"
+    token = external_data.encrypt_credentials(secret, {"username": "user", "key": "abcd1234ef"})
+    creds = external_data.decrypt_credentials(secret, token)
+    assert creds["username"] == "user"
+    assert creds["key"] == "abcd1234ef"
+
+
+def test_validate_dataset_ref():
+    good = "owner/dataset-name_123"
+    assert external_data.validate_dataset_ref(good) == good
+    bad = "owner/../../etc"
+    with pytest.raises(external_data.ExternalDataError):
+        external_data.validate_dataset_ref(bad)
+
+
+def test_learn_page_loads(temp_app):
+    """Test that the /learn route loads successfully."""
+    client = temp_app.test_client()
+    resp = client.get("/learn")
+    assert resp.status_code == 200
+    assert b"Understanding Benford's Law" in resp.data
+    assert b"What is Benford's Law?" in resp.data
+    assert b"Why Does It Occur?" in resp.data
+    assert b"Real-World Applications" in resp.data
+
+
+def test_examples_page_loads(temp_app):
+    """Test that the /examples route loads with example datasets."""
+    client = temp_app.test_client()
+    resp = client.get("/examples")
+    assert resp.status_code == 200
+    assert b"Explore Example Datasets" in resp.data
+    # Should show at least some example datasets if metadata loads
+    # Even if metadata.json is empty, the page should still render
+
+
+def test_interpretation_module():
+    """Test the interpretation.py module functions correctly."""
+    from benford.interpretation import interpret_results
+
+    # Test conforming data (high p-value)
+    result = interpret_results(p_value=0.8, chi_squared=2.5, dataset_name="Test Dataset", expectation="conform")
+    assert "likely follows Benford's Law" in result["headline"]
+    assert "Test Dataset" in result["headline"]
+    assert "No red flags detected" in result["guidance"]
+    assert "This matches the expected behavior" in result["detail"]
+
+    # Test non-conforming data (low p-value)
+    result = interpret_results(p_value=0.01, chi_squared=25.0, dataset_name="Bad Data", expectation="conform")
+    assert "likely does not follow Benford's Law" in result["headline"]
+    assert "Significant deviation detected" in result["guidance"]
+    assert "This result differs from the typical expectation" in result["detail"]
+
+    # Test expected non-conformer
+    result = interpret_results(p_value=0.001, chi_squared=30.0, dataset_name="Dice Rolls", expectation="nonconform")
+    assert "likely does not follow Benford's Law" in result["headline"]
+    assert "This deviation is expected" in result["detail"]
+
+    # Test missing statistics
+    result = interpret_results(p_value=None, chi_squared=None)
+    assert "Could not interpret results" in result["headline"]
+    assert "did not return a p-value" in result["detail"]
+
+
+def test_example_analysis_requires_csrf(temp_app, monkeypatch):
+    """Test that example analysis endpoint requires CSRF token."""
+    # Mock example datasets - don't need real CSV for CSRF test
+    mock_examples = [
+        {
+            "id": "test_example",
+            "name": "Test Example",
+            "filename": "test.csv",
+            "column": "value",
+            "expectation": "conform"
+        }
+    ]
+    monkeypatch.setattr(flask_app, "EXAMPLE_DATASETS", mock_examples)
+
+    client = temp_app.test_client()
+
+    # Test without CSRF - should fail and redirect
+    resp = client.post("/examples/analyze/test_example", data={}, follow_redirects=True)
+    assert resp.status_code == 200
+    assert b"Invalid or missing CSRF token" in resp.data
+
+
+def test_example_download(temp_app, monkeypatch):
+    """Test that example datasets can be downloaded."""
+    # Mock example datasets
+    mock_examples = [
+        {
+            "id": "download_test",
+            "name": "Download Test",
+            "filename": "download_test.csv",
+            "column": "value",
+            "expectation": "conform"
+        }
+    ]
+    monkeypatch.setattr(flask_app, "EXAMPLE_DATASETS", mock_examples)
+
+    # Create the test CSV file
+    examples_folder = flask_app.EXAMPLES_FOLDER
+    examples_folder.mkdir(parents=True, exist_ok=True)
+    test_csv = examples_folder / "download_test.csv"
+    test_csv.write_text("value\n1\n2\n3\n")
+
+    monkeypatch.setattr(flask_app, "EXAMPLES_ROOT", examples_folder.resolve())
+
+    client = temp_app.test_client()
+    resp = client.get("/examples/download/download_test")
+    assert resp.status_code == 200
+    assert resp.headers["Content-Disposition"]
+    assert "download_test.csv" in resp.headers["Content-Disposition"]

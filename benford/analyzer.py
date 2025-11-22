@@ -79,8 +79,13 @@ class BenfordAnalyzer:
         :param bl: The benfordslaw object containing the analysis results.
         """
         if self.report_path:
+            results = self.results or bl.results
+            p_value = float(results.get('P', float('nan')))
+            t_stat = float(results.get('t', float('nan')))
+            conclusion = 'No anomaly detected' if p_value > 0.05 else 'Anomaly detected'
+
             with open(self.report_path, 'w') as f:
                 f.write(f"Benford's Law Report for: {self.column}\n\n")
-                f.write(f"Chi-squared statistic: {bl.tstat:.5f}\n")
-                f.write(f"P-value: {bl.p:.5f}\n")
-                f.write(f"Conclusion: {'No anomaly detected' if bl.p > 0.05 else 'Anomaly detected'}\n")
+                f.write(f"Chi-squared statistic: {t_stat:.5f}\n")
+                f.write(f"P-value: {p_value:.5f}\n")
+                f.write(f"Conclusion: {conclusion}\n")

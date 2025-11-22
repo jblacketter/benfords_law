@@ -1,0 +1,72 @@
+[
+  {
+    "id": "us_population",
+    "name": "US State Populations (2020)",
+    "filename": "us_population.csv",
+    "column": "Population",
+    "expectation": "conform",
+    "summary": "2020 populations for U.S. states.",
+    "why": "Populations span orders of magnitude and typically follow Benford's Law.",
+    "tags": ["demographics", "conformer"]
+  },
+  {
+    "id": "river_lengths",
+    "name": "Major US River Lengths",
+    "filename": "river_lengths.csv",
+    "column": "LengthMiles",
+    "expectation": "conform",
+    "summary": "Lengths of major U.S. rivers in miles.",
+    "why": "Natural measurements across wide scales often align with Benford's distribution.",
+    "tags": ["geography", "conformer"]
+  },
+  {
+    "id": "stock_prices",
+    "name": "Sample Stock Closing Prices",
+    "filename": "stock_prices.csv",
+    "column": "Close",
+    "expectation": "conform",
+    "summary": "Synthetic but realistic closing prices for a mixed-cap portfolio.",
+    "why": "Market prices across many scales tend to approximate Benford behavior.",
+    "tags": ["finance", "conformer"]
+  },
+  {
+    "id": "earthquake_magnitudes",
+    "name": "Earthquake Magnitudes (Synthetic)",
+    "filename": "earthquake_magnitudes.csv",
+    "column": "Magnitude",
+    "expectation": "conform",
+    "summary": "Synthetic earthquake magnitudes across many events.",
+    "why": "Seismic magnitudes roughly follow a logarithmic distribution.",
+    "tags": ["science", "conformer"]
+  },
+  {
+    "id": "lottery_numbers",
+    "name": "Lottery Numbers (Uniform)",
+    "filename": "lottery_numbers.csv",
+    "column": "Number",
+    "expectation": "nonconform",
+    "summary": "Uniform random lottery draws between 1 and 69.",
+    "why": "Uniform random draws break Benford's skew toward low leading digits.",
+    "tags": ["games", "non-conformer"]
+  },
+  {
+    "id": "dice_rolls",
+    "name": "Dice Rolls (1-6)",
+    "filename": "dice_rolls.csv",
+    "column": "Roll",
+    "expectation": "nonconform",
+    "summary": "Outcomes from rolling a single six-sided die.",
+    "why": "Single-digit uniform outcomes do not match Benford's distribution.",
+    "tags": ["games", "non-conformer"]
+  },
+  {
+    "id": "human_heights",
+    "name": "Human Heights (cm)",
+    "filename": "human_heights.csv",
+    "column": "HeightCm",
+    "expectation": "nonconform",
+    "summary": "Adult human heights clustered around 150-200cm.",
+    "why": "Narrow biological measurements center on 1xx and typically violate Benford.",
+    "tags": ["biology", "non-conformer"]
+  }
+]

@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Learn Benford's Law{% endblock %}
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom:8px;">Understanding Benford's Law</h1>
+    <p class="muted" style="margin-bottom:24px;">A comprehensive guide to the curious phenomenon where leading digits follow a predictable logarithmic distribution.</p>
+
+    <!-- What is Benford's Law -->
+    <div class="section">
+        <h2 style="margin-bottom:12px;">What is Benford's Law?</h2>
+        <div style="background: var(--surface); padding:18px; border-radius:12px; margin-bottom:16px;">
+            <p style="margin-bottom:12px;">
+                <strong>Benford's Law</strong> (also called the <em>Newcomb-Benford Law</em> or the <em>First-Digit Law</em>) is a mathematical principle that describes the frequency distribution of leading digits in many real-world datasets.
+            </p>
+            <p style="margin-bottom:12px;">
+                Instead of each digit (1-9) appearing about 11% of the time as you might expect, Benford's Law predicts that smaller digits appear as leading digits much more frequently than larger ones:
+            </p>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap:10px; margin-top:16px;">
+                {% set digits_data = [
+                    {'digit': 1, 'percent': 30.1},
+                    {'digit': 2, 'percent': 17.6},
+                    {'digit': 3, 'percent': 12.5},
+                    {'digit': 4, 'percent': 9.7},
+                    {'digit': 5, 'percent': 7.9},
+                    {'digit': 6, 'percent': 6.7},
+                    {'digit': 7, 'percent': 5.8},
+                    {'digit': 8, 'percent': 5.1},
+                    {'digit': 9, 'percent': 4.6}
+                ] %}
+                {% for item in digits_data %}
+                <div style="text-align:center; background:#fff; padding:10px; border-radius:8px;">
+                    <div style="font-size:24px; font-weight:700; color:var(--accent);">{{ item.digit }}</div>
+                    <div style="font-size:18px; font-weight:600;">{{ item.percent }}%</div>
+                    <div style="height:60px; display:flex; align-items:flex-end; justify-content:center; margin-top:6px;">
+                        <div style="width:100%; height:{{ item.percent/30 * 60 }}px; background: linear-gradient(to top, var(--accent), var(--accent-2)); border-radius:4px 4px 0 0;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Why Does It Occur -->
+    <div class="section">
+        <h2 style="margin-bottom:12px;">Why Does It Occur?</h2>
+        <div style="background: var(--surface); padding:18px; border-radius:12px; margin-bottom:16px;">
+            <p style="margin-bottom:12px;">
+                Benford's Law emerges from the <strong>logarithmic nature of multiplicative processes</strong>. Here's the intuition:
+            </p>
+            <div class="grid grid-2" style="gap:12px;">
+                <div style="background:#fff; padding:14px; border-radius:8px;">
+                    <h4 style="margin-bottom:6px; color:var(--accent);">Scale Invariance</h4>
+                    <p class="muted" style="font-size:14px;">
+                        When data spans multiple orders of magnitude (e.g., 1 to 10,000), numbers spend more "time" starting with 1. To go from 1,000 to 2,000 is a 100% increase, but from 9,000 to 10,000 is only 11%.
+                    </p>
+                </div>
+                <div style="background:#fff; padding:14px; border-radius:8px;">
+                    <h4 style="margin-bottom:6px; color:var(--accent);">Exponential Growth</h4>
+                    <p class="muted" style="font-size:14px;">
+                        Phenomena that grow exponentially (populations, stock prices, physical constants) naturally follow Benford's distribution because they pass through orders of magnitude at a logarithmic rate.
+                    </p>
+                </div>
+                <div style="background:#fff; padding:14px; border-radius:8px;">
+                    <h4 style="margin-bottom:6px; color:var(--accent);">Mixture of Distributions</h4>
+                    <p class="muted" style="font-size:14px;">
+                        When you combine multiple datasets with different scales (e.g., populations of cities, states, and countries), the aggregate often conforms to Benford's Law.
+                    </p>
+                </div>
+                <div style="background:#fff; padding:14px; border-radius:8px;">
+                    <h4 style="margin-bottom:6px; color:var(--accent);">Mathematical Foundation</h4>
+                    <p class="muted" style="font-size:14px;">
+                        The probability that a number starts with digit <em>d</em> is log₁₀(1 + 1/d). For d=1: log₁₀(2) ≈ 0.301 or 30.1%.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Where is it Applicable -->
+    <div class="section">
+        <h2 style="margin-bottom:12px;">Where is Benford's Law Applicable?</h2>
+        <div style="background: var(--surface); padding:18px; border-radius:12px; margin-bottom:16px;">
+            <p style="margin-bottom:16px;">
+                Benford's Law applies to datasets that meet certain criteria. Understanding when it works (and when it doesn't) is crucial for proper analysis.
+            </p>
+
+            <h3 style="margin-bottom:10px; color:var(--success);">✓ Datasets that CONFORM</h3>
+            <div class="grid grid-2" style="gap:10px; margin-bottom:20px;">
+                <div style="background:#ecfdf3; padding:12px; border-radius:8px; border-left:4px solid var(--success);">
+                    <strong>Geographic Data</strong>
+                    <p class="muted" style="font-size:13px; margin-top:4px;">Population counts, land areas, river lengths, elevation measurements</p>
+                </div>
+                <div style="background:#ecfdf3; padding:12px; border-radius:8px; border-left:4px solid var(--success);">
+                    <strong>Financial Data</strong>
+                    <p class="muted" style="font-size:13px; margin-top:4px;">Stock prices, transaction amounts, invoice values, tax returns</p>
+                </div>
+                <div style="background:#ecfdf3; padding:12px; border-radius:8px; border-left:4px solid var(--success);">
+                    <strong>Scientific Measurements</strong>
+                    <p class="muted" style="font-size:13px; margin-top:4px;">Physical constants, astronomical distances, earthquake magnitudes</p>
+                </div>
+                <div style="background:#ecfdf3; padding:12px; border-radius:8px; border-left:4px solid var(--success);">
+                    <strong>Social Media Metrics</strong>
+                    <p class="muted" style="font-size:13px; margin-top:4px;">Follower counts, view counts, engagement numbers across platforms</p>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom:10px; color:var(--danger);">✗ Datasets that DON'T CONFORM</h3>
+            <div class="grid grid-2" style="gap:10px;">
+                <div style="background:#fee2e2; padding:12px; border-radius:8px; border-left:4px solid var(--danger);">
+                    <strong>Assigned Numbers</strong>
+                    <p class="muted" style="font-size:13px; margin-top:4px;">Phone numbers, social security numbers, lottery numbers, license plates</p>
+                </div>
+                <div style="background:#fee2e2; padding:12px; border-radius:8px; border-left:4px solid var(--danger);">
+                    <strong>Constrained Ranges</strong>
+                    <p class="muted" style="font-size:13px; margin-top:4px;">Human heights/weights, IQ scores, ages, temperatures in a specific location</p>
+                </div>
+                <div style="background:#fee2e2; padding:12px; border-radius:8px; border-left:4px solid var(--danger);">
+                    <strong>Uniform Distributions</strong>
+                    <p class="muted" style="font-size:13px; margin-top:4px;">Dice rolls, random number generators, equally-spaced measurements</p>
+                </div>
+                <div style="background:#fee2e2; padding:12px; border-radius:8px; border-left:4px solid var(--danger);">
+                    <strong>Small Sample Sizes</strong>
+                    <p class="muted" style="font-size:13px; margin-top:4px;">Datasets with fewer than 100 observations may not have enough data to show the pattern</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How to Interpret Results -->
+    <div class="section">
+        <h2 style="margin-bottom:12px;">How to Interpret Results</h2>
+        <div style="background: var(--surface); padding:18px; border-radius:12px; margin-bottom:16px;">
+            <p style="margin-bottom:16px;">
+                When you analyze a dataset, you'll receive statistical measures that indicate conformance to Benford's Law:
+            </p>
+
+            <div style="background:#fff; padding:16px; border-radius:8px; margin-bottom:16px;">
+                <h4 style="margin-bottom:8px;">Understanding the P-Value</h4>
+                <p style="margin-bottom:8px;">
+                    The <strong>p-value</strong> measures the probability that the observed distribution occurred by chance if the data truly follows Benford's Law.
+                </p>
+                <div class="grid grid-2" style="gap:12px; margin-top:12px;">
+                    <div style="background:#ecfdf3; padding:10px; border-radius:6px;">
+                        <strong style="color:var(--success);">p-value > 0.05</strong>
+                        <p class="muted" style="font-size:13px; margin-top:4px;">Data likely follows Benford's Law. No significant deviation detected.</p>
+                    </div>
+                    <div style="background:#fee2e2; padding:10px; border-radius:6px;">
+                        <strong style="color:var(--danger);">p-value ≤ 0.05</strong>
+                        <p class="muted" style="font-size:13px; margin-top:4px;">Significant deviation detected. Data likely doesn't follow Benford's Law.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background:#fff; padding:16px; border-radius:8px; margin-bottom:16px;">
+                <h4 style="margin-bottom:8px;">Understanding Chi-Squared (χ²)</h4>
+                <p style="margin-bottom:8px;">
+                    The <strong>chi-squared statistic</strong> measures how much the observed frequencies differ from the expected Benford distribution.
+                </p>
+                <div style="margin-top:12px; padding:12px; background:var(--surface); border-radius:6px;">
+                    <p class="muted" style="font-size:13px;">
+                        <strong>Lower χ² values</strong> indicate closer conformance to Benford's Law.<br>
+                        <strong>Higher χ² values</strong> indicate greater deviation from the expected distribution.<br>
+                        The critical value depends on degrees of freedom (typically 8 for first-digit analysis).
+                    </p>
+                </div>
+            </div>
+
+            <div style="background:#fff3cd; padding:16px; border-radius:8px; border-left:4px solid var(--warn);">
+                <h4 style="margin-bottom:6px;">What if my data doesn't conform?</h4>
+                <p class="muted" style="font-size:14px;">
+                    <strong>Don't panic!</strong> Non-conformance isn't always suspicious. Consider:
+                </p>
+                <ul style="margin-top:8px; margin-left:20px;" class="muted">
+                    <li style="font-size:13px; margin-bottom:4px;">Does your data naturally fall into a narrow range? (e.g., human heights)</li>
+                    <li style="font-size:13px; margin-bottom:4px;">Are the numbers assigned rather than naturally occurring? (e.g., account IDs)</li>
+                    <li style="font-size:13px; margin-bottom:4px;">Is your sample size too small? (need 100+ observations)</li>
+                    <li style="font-size:13px; margin-bottom:4px;">Only investigate fraud/anomalies if deviation is unexpected for your data type.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-World Applications -->
+    <div class="section">
+        <h2 style="margin-bottom:12px;">Real-World Applications</h2>
+        <div style="background: var(--surface); padding:18px; border-radius:12px; margin-bottom:16px;">
+            <div class="grid grid-2" style="gap:14px;">
+                <div style="background:#fff; padding:14px; border-radius:8px;">
+                    <div style="font-size:32px; margin-bottom:8px;">🔍</div>
+                    <h4 style="margin-bottom:6px;">Fraud Detection</h4>
+                    <p class="muted" style="font-size:13px;">
+                        Tax agencies and auditors use Benford's Law to identify potentially fraudulent financial records. Fabricated numbers often fail to match the natural distribution.
+                    </p>
+                </div>
+                <div style="background:#fff; padding:14px; border-radius:8px;">
+                    <div style="font-size:32px; margin-bottom:8px;">🗳️</div>
+                    <h4 style="margin-bottom:6px;">Election Analysis</h4>
+                    <p class="muted" style="font-size:13px;">
+                        Researchers analyze vote counts to detect potential irregularities. While debated, significant deviations can warrant deeper investigation.
+                    </p>
+                </div>
+                <div style="background:#fff; padding:14px; border-radius:8px;">
+                    <div style="font-size:32px; margin-bottom:8px;">🔬</div>
+                    <h4 style="margin-bottom:6px;">Scientific Validation</h4>
+                    <p class="muted" style="font-size:13px;">
+                        Scientists check if published data follows expected patterns. Fabricated experimental data often deviates from Benford's distribution.
+                    </p>
+                </div>
+                <div style="background:#fff; padding:14px; border-radius:8px;">
+                    <div style="font-size:32px; margin-bottom:8px;">💼</div>
+                    <h4 style="margin-bottom:6px;">Accounting & Compliance</h4>
+                    <p class="muted" style="font-size:13px;">
+                        Companies use Benford's Law in internal audits to flag unusual expense reports, invoices, or transaction patterns for review.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Common Misconceptions -->
+    <div class="section">
+        <h2 style="margin-bottom:12px;">Common Misconceptions</h2>
+        <div style="background: var(--surface); padding:18px; border-radius:12px; margin-bottom:16px;">
+            <div style="background:#fff; padding:14px; border-radius:8px; margin-bottom:12px; border-left:4px solid var(--warn);">
+                <h4 style="margin-bottom:6px;">❌ "Benford's Law applies to all datasets"</h4>
+                <p class="muted" style="font-size:14px;">
+                    <strong>False.</strong> It only applies to data that spans multiple orders of magnitude and arises from natural processes, not assigned or constrained numbers.
+                </p>
+            </div>
+            <div style="background:#fff; padding:14px; border-radius:8px; margin-bottom:12px; border-left:4px solid var(--warn);">
+                <h4 style="margin-bottom:6px;">❌ "Deviation always means fraud"</h4>
+                <p class="muted" style="font-size:14px;">
+                    <strong>False.</strong> Deviation is a red flag, not proof. Many legitimate datasets don't conform. Always investigate context before concluding fraud.
+                </p>
+            </div>
+            <div style="background:#fff; padding:14px; border-radius:8px; margin-bottom:12px; border-left:4px solid var(--warn);">
+                <h4 style="margin-bottom:6px;">❌ "Small samples work just as well"</h4>
+                <p class="muted" style="font-size:14px;">
+                    <strong>False.</strong> You need at least 100 observations, preferably 1,000+, for the pattern to emerge reliably. Small samples are too noisy.
+                </p>
+            </div>
+            <div style="background:#fff; padding:14px; border-radius:8px; border-left:4px solid var(--warn);">
+                <h4 style="margin-bottom:6px;">❌ "The law was discovered recently"</h4>
+                <p class="muted" style="font-size:14px;">
+                    <strong>False.</strong> Simon Newcomb first observed it in 1881, and Frank Benford rediscovered and popularized it in 1938. It's over a century old!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Try It Yourself -->
+    <div class="section">
+        <div style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); padding:24px; border-radius:12px; text-align:center; color:#fff;">
+            <h2 style="margin-bottom:8px; color:#fff;">Ready to Try It Yourself?</h2>
+            <p style="margin-bottom:16px; opacity:0.95;">Explore curated example datasets or upload your own data to see Benford's Law in action.</p>
+            <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                <a href="{{ url_for('examples') }}" class="btn btn-secondary" style="background:#fff; color:var(--accent); border:none;">Browse Examples</a>
+                <a href="{{ url_for('upload_file') }}" class="btn btn-secondary" style="background:rgba(255,255,255,0.2); color:#fff; border:2px solid #fff;">Upload Your Data</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

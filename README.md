@@ -15,6 +15,10 @@ The application has been hardened with enterprise-grade security features and is
 -   **Data Preview**: Preview your data and column headers before running the full analysis.
 -   **Rich Visualizations**: Generates `matplotlib` plots to visualize first-digit frequencies against the Benford's Law curve.
 -   **Detailed Reports**: Provides statistical output, including Chi-squared tests, to validate conformity.
+-   **Curated Examples**: Browse preloaded conforming and non-conforming datasets to see Benford's Law in action (`/examples`).
+-   **Educational UI**: Landing page explains Benford's Law and the expected digit distribution.
+-   **Plain-Language Results**: Results page summarizes p-value/chi-squared with a clear interpretation.
+-   **Kaggle Integration**: Search Kaggle datasets, preview CSVs, and run Benford analysis (credentials encrypted in-session).
 
 ### Production & Security Features
 
@@ -124,11 +128,27 @@ This application is built to be deployed on platforms like Heroku, DigitalOcean,
 .
 ├── app.py                  # Main Flask application
 ├── benford/                # Core analysis logic
-│   └── analyzer.py
-├── static/                 # Static assets (images, reports)
-├── templates/              # HTML templates
+│   ├── analyzer.py
+│   ├── interpretation.py
+│   └── external_data.py
+├── data/examples/          # Curated example datasets + metadata
+├── static/                 # Generated plots/reports
+├── templates/              # HTML templates (base, upload, preview, results, examples, kaggle, learn)
 ├── tests/                  # Pytest test suite
 ├── .env.example            # Environment variable template
 ├── requirements.txt        # Python dependencies
 └── README.md               # This file
 ```
+
+## Examples
+
+- Browse curated datasets at `/examples` (or click “Browse examples” on the landing page).
+- Example files live in `data/examples/` with metadata in `data/examples/metadata.json`.
+
+## Kaggle Integration
+
+- Navigate to `/kaggle` (or click “Data Sources”).
+- Enter Kaggle username and API key (stored encrypted in session for 1 hour).
+- Search for datasets; only CSV files are shown, ranked by suitability for Benford analysis.
+- Preview up to 100 rows before downloading; downloads are limited to CSVs under 50MB and 500k rows.
+- Then run the standard analysis flow.

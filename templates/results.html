@@ -1,133 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analysis Results - Benford's Law</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends "base.html" %}
+{% block title %}Analysis Results · Benford{% endblock %}
+{% block content %}
+<div class="card">
+    <h1 style="text-align:center; margin-bottom:18px;">Analysis Results</h1>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
-        }
-
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 32px;
-            text-align: center;
-        }
-
-        .plot-container {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .plot-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .info-card {
-            background: #e8f4f8;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #2196F3;
-            margin-bottom: 30px;
-        }
-
-        .info-card h2 {
-            color: #2196F3;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .info-card p {
-            color: #555;
-            line-height: 1.6;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Analysis Results</h1>
-
-        <div class="info-card">
-            <h2>About Your Results</h2>
-            <p>
-                The chart below compares your data's digit distribution (in orange) with Benford's Law expected distribution (in blue).
-                If your data follows Benford's Law, the bars should closely align. Significant deviations may indicate anomalies,
-                errors, or manufactured data.
-            </p>
+    <div class="grid grid-2" style="margin-bottom:16px;">
+        <div style="background: var(--surface); padding:14px; border-radius:12px;">
+            <div class="muted" style="font-size:12px; text-transform:uppercase;">Dataset</div>
+            <div style="font-size:18px; font-weight:700;">{{ dataset_label or 'Your dataset' }}</div>
+            {% if expectation == 'conform' %}
+                <span class="pill pill-green" style="margin-top:6px;" role="status" aria-label="Expected to conform to Benford's Law">Expected to conform</span>
+            {% elif expectation == 'nonconform' %}
+                <span class="pill pill-red" style="margin-top:6px;" role="status" aria-label="Expected to deviate from Benford's Law">Expected to deviate</span>
+            {% endif %}
         </div>
-
-        <div class="plot-container">
-            <img src="{{ plot_url }}" alt="Benford's Law Analysis Plot">
-        </div>
-
-        <div class="actions">
-            <a href="{{ report_url }}" class="btn btn-secondary" target="_blank">View Detailed Report</a>
-            <a href="/" class="btn btn-primary">Analyze Another File</a>
+        <div style="background: var(--surface); padding:14px; border-radius:12px;">
+            <div class="muted" style="font-size:12px; text-transform:uppercase;">Key stats</div>
+            <div style="display:flex; gap:16px; align-items:flex-end; margin-top:6px;">
+                <div>
+                    <div class="muted" style="font-size:12px;">p-value</div>
+                    <div style="font-size:20px; font-weight:700;">{{ '%.4f'|format(p_value) if p_value is not none else '—' }}</div>
+                </div>
+                <div>
+                    <div class="muted" style="font-size:12px;">Chi-squared</div>
+                    <div style="font-size:20px; font-weight:700;">{{ '%.4f'|format(t_stat) if t_stat is not none else '—' }}</div>
+                </div>
+            </div>
         </div>
     </div>
-</body>
-</html>
+
+    <div class="card" style="padding:18px; background:#f8f9ff; border:1px solid var(--border);">
+        <h3 style="margin-bottom:6px;">What this means</h3>
+        <p style="font-weight:600; margin-bottom:6px;">{{ interpretation.headline }}</p>
+        <p class="muted" style="margin-bottom:6px;">{{ interpretation.detail }}</p>
+        <p class="muted">{{ interpretation.guidance }}</p>
+    </div>
+
+    <div class="section">
+        <div class="card" style="padding:16px;">
+            <h3 style="margin-bottom:10px;">Digit distribution chart</h3>
+            <div class="plot-container" style="text-align:center; background:var(--surface); padding:12px; border-radius:12px;">
+                <img src="{{ plot_url }}" alt="Bar chart comparing observed first-digit frequencies to Benford's Law expected distribution for {{ dataset_label }}" style="max-width:100%; height:auto; border-radius:8px;">
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+                <a href="{{ report_url }}" class="btn btn-secondary" target="_blank">View detailed report</a>
+                <a href="/" class="btn btn-primary">Analyze another file</a>
+                <a href="{{ url_for('examples') }}" class="btn btn-secondary">Try an example</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

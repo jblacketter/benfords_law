@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Examples · Benford's Law{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom:8px;">Explore Example Datasets</h1>
+    <p class="muted" style="margin-bottom:16px;">Pick a curated dataset to see how Benford's Law behaves. Each card shows why the data is expected to conform (or not) and lets you analyze in one click.</p>
+
+    <div class="grid grid-2 section">
+        {% for example in examples %}
+        <div class="card" style="padding:20px; box-shadow:none; border:1px solid var(--border);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <h3 style="margin:0;">{{ example.name }}</h3>
+                {% if example.expectation == 'conform' %}
+                    <span class="pill pill-green">Conformer</span>
+                {% else %}
+                    <span class="pill pill-red">Non-conformer</span>
+                {% endif %}
+            </div>
+            <p class="muted" style="margin-bottom:8px;">{{ example.summary }}</p>
+            <p style="font-size:13px; color: var(--text-muted); margin-bottom:12px;"><strong>Why:</strong> {{ example.why }}</p>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
+                {% for tag in example.tags %}
+                <span class="pill" style="background:#f1f5f9; color:#334155;">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <form method="post" action="{{ url_for('analyze_example', example_id=example.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button class="btn btn-primary" type="submit">Analyze</button>
+                </form>
+                <a class="btn btn-secondary" href="{{ url_for('download_example', example_id=example.id) }}">Download CSV</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

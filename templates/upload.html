@@ -1,172 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benford's Law Analysis</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
-            width: 100%;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        label {
-            color: #555;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        input[type="file"] {
-            padding: 10px;
-            border: 2px dashed #667eea;
-            border-radius: 8px;
-            background: #f8f9ff;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        input[type="file"]:hover {
-            border-color: #764ba2;
-            background: #f0f1ff;
-        }
-
-        input[type="text"] {
-            padding: 12px 16px;
-            border: 2px solid #e1e4e8;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        input[type="submit"] {
-            padding: 14px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        input[type="submit"]:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        input[type="submit"]:active {
-            transform: translateY(0);
-        }
-
-        .flashes {
-            list-style: none;
-            margin-top: 20px;
-        }
-
-        .flashes li {
-            padding: 12px 16px;
-            background: #fee;
-            color: #c33;
-            border-left: 4px solid #c33;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            font-size: 14px;
-        }
-
-        .info-box {
-            background: #e8f4f8;
-            padding: 16px;
-            border-radius: 8px;
-            border-left: 4px solid #2196F3;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .info-box strong {
-            color: #2196F3;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Benford's Law Analysis</h1>
-        <p class="subtitle">Upload a CSV file to test if your data conforms to Benford's Law</p>
-
-        <div class="info-box">
-            <strong>What is Benford's Law?</strong><br>
-            Benford's Law states that in many naturally occurring datasets, the leading digit is more likely to be small. It's used to detect fraud in financial data, election results, and more.
-        </div>
-
-        <form method="post" action="/preview" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <div class="form-group">
-                <label for="file">Select CSV File:</label>
-                <input type="file" name="file" id="file" accept=".csv" required>
+{% extends "base.html" %}
+{% block title %}Benford's Law Analyzer{% endblock %}
+{% block content %}
+<div class="card" id="learn">
+    <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:center;">
+        <div style="flex:1 1 320px;">
+            <h1 style="margin-bottom:8px;">Test and Learn Benford's Law</h1>
+            <p class="muted" style="margin-bottom:12px;">Upload a CSV, preview your data, and see how its leading digits compare to Benford's expected distribution.</p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                <span class="pill pill-green">Upload or use examples</span>
+                <span class="pill pill-amber">Preview before analysis</span>
+                <span class="pill pill-red">Plain-language results</span>
             </div>
-
-            <input type="submit" value="Preview Data">
-        </form>
-
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flashes">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+            <div class="grid grid-2">
+                <div style="background: var(--surface); padding:12px 14px; border-radius:12px;">
+                    <strong>What is Benford's Law?</strong>
+                    <p class="muted" style="font-size:14px;">In many natural datasets, numbers starting with 1 appear about 30% of the time, while 9s appear less than 5%. Big deviations can signal anomalies.</p>
+                </div>
+                <div style="background: var(--surface); padding:12px 14px; border-radius:12px;">
+                    <strong>Expected distribution</strong>
+                    <div style="display:grid; grid-template-columns: repeat(9, 1fr); gap:6px; margin-top:8px;">
+                        {% set percents = [30.1,17.6,12.5,9.7,7.9,6.7,5.8,5.1,4.6] %}
+                        {% for p in percents %}
+                        <div style="text-align:center; font-size:12px;">
+                            <div style="height:50px; display:flex; align-items:flex-end; justify-content:center;">
+                                <div style="width:12px; height:{{ p/30 * 50 }}px; background: var(--accent); border-radius:6px 6px 2px 2px;"></div>
+                            </div>
+                            <div style="font-weight:600;">{{ loop.index }}</div>
+                            <div class="muted" style="font-size:11px;">{{ p }}%</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card" style="flex:1 1 320px; background: #f8f9ff;">
+            <h3 style="margin-bottom:10px;">Upload a CSV</h3>
+            <form method="post" action="/preview" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:14px;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <label style="font-weight:600;">Select CSV File</label>
+                <input type="file" name="file" id="file" accept=".csv" required style="padding:12px; border:2px dashed var(--accent); border-radius:10px; background:#fff;">
+                <button type="submit" class="btn btn-primary" style="justify-content:center;">Preview Data</button>
+            </form>
+            <p class="muted" style="margin-top:10px; font-size:13px;">We validate MIME type, size (16MB default), and numeric columns before analysis.</p>
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                <a href="{{ url_for('examples') }}" class="btn btn-secondary">Browse examples</a>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+
+    <div class="section">
+        <h3>How it works</h3>
+        <div class="grid grid-2" style="margin-top:10px;">
+            <div style="background: var(--surface); padding:12px 14px; border-radius:12px;">
+                <strong>1) Upload or pick an example</strong>
+                <p class="muted" style="font-size:14px;">Use your CSV or start with curated datasets to see conforming and non-conforming patterns.</p>
+            </div>
+            <div style="background: var(--surface); padding:12px 14px; border-radius:12px;">
+                <strong>2) Preview and select a numeric column</strong>
+                <p class="muted" style="font-size:14px;">We detect numeric columns and show a 10-row preview so you can choose confidently.</p>
+            </div>
+            <div style="background: var(--surface); padding:12px 14px; border-radius:12px;">
+                <strong>3) Run Benford analysis</strong>
+                <p class="muted" style="font-size:14px;">We compute first-digit frequencies, generate a plot, and calculate chi-squared and p-value.</p>
+            </div>
+            <div style="background: var(--surface); padding:12px 14px; border-radius:12px;">
+                <strong>4) Interpret the results</strong>
+                <p class="muted" style="font-size:14px;">Get a plain-language explanation plus the detailed report for deeper inspection.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

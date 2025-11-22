@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Kaggle Data Sources{% endblock %}
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom:8px;">Analyze Kaggle Datasets</h1>
+    <p class="muted" style="margin-bottom:14px;">Search Kaggle for CSV datasets, preview the first 100 rows, then run Benford's Law analysis.</p>
+
+    <div class="grid grid-2" style="margin-bottom:16px;">
+        <form method="post" action="{{ url_for('kaggle') }}" class="card" style="padding:16px; box-shadow:none; border:1px solid var(--border);">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <h3 style="margin-bottom:10px;">Credentials</h3>
+            <p class="muted" style="font-size:13px;">Enter your Kaggle username and API key (stored encrypted in session for 1 hour).</p>
+            <label style="font-weight:600;">Username</label>
+            <input name="username" type="text" placeholder="kaggle_username" style="padding:10px; border:1px solid var(--border); border-radius:8px;">
+            <label style="font-weight:600; margin-top:8px;">API Key</label>
+            <input name="key" type="password" placeholder="kaggle_api_key" style="padding:10px; border:1px solid var(--border); border-radius:8px;">
+            <label style="font-weight:600; margin-top:12px;">Search query</label>
+            <input name="query" type="text" value="{{ query }}" placeholder="e.g., population" style="padding:10px; border:1px solid var(--border); border-radius:8px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-top:10px;">
+                <button class="btn btn-primary" type="submit">Search</button>
+                <span class="pill pill-amber">{{ remaining_calls }} calls remaining this hour</span>
+            </div>
+            <p class="muted" style="font-size:12px; margin-top:8px;">CSV-only, 50MB max download, 500k row preview limit.</p>
+        </form>
+        <div style="background: var(--surface); padding:16px; border-radius:12px;">
+            <strong>Security notes</strong>
+            <ul style="margin-top:8px; margin-left:16px; color: var(--text-muted);">
+                <li>Credentials are encrypted (Fernet) in session for 1 hour.</li>
+                <li>No credentials are logged; values are masked in logs.</li>
+                <li>Per-session Kaggle call limit: 20/hour with 15-minute cache for searches.</li>
+                <li>Downloads limited to CSV files &lt; 50MB; preview up to 100 rows.</li>
+            </ul>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="pill pill-red" style="margin-bottom:12px;">{{ error }}</div>
+    {% endif %}
+
+    {% if results %}
+    <div class="section">
+        <h3>Search results</h3>
+        <div class="grid grid-2" style="margin-top:10px;">
+            {% for item in results %}
+            <div class="card" style="padding:16px; box-shadow:none; border:1px solid var(--border);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <h4 style="margin:0;">{{ item.title }}</h4>
+                    {% if item.score >= 2 %}
+                        <span class="pill pill-green" role="status">Good for Benford</span>
+                    {% elif item.score <= -1 %}
+                        <span class="pill pill-amber" role="status">Maybe unsuitable</span>
+                    {% else %}
+                        <span class="pill" style="background:#eef2ff; color:#4338ca;" role="status">Neutral</span>
+                    {% endif %}
+                </div>
+                <p class="muted" style="margin-bottom:6px;">{{ item.description }}</p>
+                <p class="muted" style="font-size:13px;">Dataset: {{ item.ref }}</p>
+                <div style="margin-top:8px;">
+                    <strong>CSV files ({{ item.csv_files|length }})</strong>
+                    <ul style="margin-top:6px; margin-left:18px; color: var(--text-muted); font-size:13px;">
+                        {% for f in item.csv_files %}
+                        <li>{{ f.name }} ({{ ('%.1f'|format(f.size/1024/1024)) if f.size else 'n/a' }} MB)
+                            <form method="post" action="{{ url_for('kaggle_preview') }}" style="display:inline; margin-left:6px;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="dataset" value="{{ item.ref }}">
+                                <input type="hidden" name="file" value="{{ f.name }}">
+                                <button class="btn btn-secondary" type="submit" style="padding:6px 10px; font-size:12px;">Preview</button>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
