@@ -1,6 +1,6 @@
 # Benford's Law Analysis Web Application
 
-This project provides a secure, production-ready web application to analyze datasets for conformity with Benford's Law. Users can upload a CSV file, preview the data, select a column, and receive a detailed analysis with plots and statistical reports.
+This project provides a web application to analyze datasets for conformity with Benford's Law. Users can upload a CSV file, preview the data, select a column, and receive a detailed analysis with plots and statistical reports.
 
 The application has been hardened with enterprise-grade security features and is ready for public deployment.
 
